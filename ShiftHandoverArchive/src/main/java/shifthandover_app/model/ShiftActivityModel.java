@@ -8,6 +8,7 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 
 
@@ -41,6 +42,41 @@ public class ShiftActivityModel {
 	@Column(name="Handover_To")
 	private String handover_To;
 
+	@Transient
+	private Date shiftDate;
+	@Transient
+	private String dateString;
+	@Transient
+	private int currentShift;
+	
+	public Date getShiftDate() {
+		return shiftDate;
+	}
+
+	public String getDateString() {
+		return dateString;
+	}
+
+
+	public void setDateString(String dateString) {
+		this.dateString = dateString;
+	}
+
+	public void setShiftDate(Date shiftDate) {
+		this.shiftDate = shiftDate;
+	}
+
+
+	public int getCurrentShift() {
+		return currentShift;
+	}
+
+
+	public void setCurrentShift(int currentShift) {
+		this.currentShift = currentShift;
+	}
+
+
 	public ShiftActivityModel()
 	{
 
@@ -54,6 +90,8 @@ public class ShiftActivityModel {
 
 	public void setShiftId(ShiftIdentifier shiftId) {
 		this.shiftId = shiftId;
+		this.shiftDate=shiftId.getShiftDate();
+		this.currentShift=shiftId.getCurrentShift();
 	}
 
 

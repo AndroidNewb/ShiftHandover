@@ -1,6 +1,7 @@
 package shifthandover_app.controller;
 
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -43,10 +44,11 @@ public class AppController {
 	public void getLoggedInUser()
 	{
 		loggedInUser=System.getProperty("user.name");
-		User user= userRepository.getUserByracfID(loggedInUser);
+		System.out.println();
+		/*User user= userRepository.getUserByracfID(loggedInUser);
 		loggedInUserRole=user.getRole();
 		loggedInUserName=user.getUserName();
-		System.out.println("Logged-in user >> "+user.toString());
+		System.out.println("Logged-in user >> "+user.toString());*/
 
 	}
 
@@ -119,6 +121,28 @@ public class AppController {
 		return sqlDate;
 	}
 
+	public java.sql.Date formatDate(java.sql.Date inputDate)
+	{
+
+
+		DateTimeFormatter ISOformatter = DateTimeFormatter.ofPattern("YYYY-mm-dd");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		//LocalDate ISOshiftDate=LocalDate.parse(inputDate.toString(), ISOformatter);
+		LocalDate ISOshiftDate=inputDate.toLocalDate();
+		String[] ISOdate=inputDate.toString().split("-");
+		String dateStr=ISOdate[2]+"/"+ISOdate[1]+"/"+ISOdate[0];
+		System.out.println(dateStr);
+		return formatSqlDate(dateStr);
+	}
+
+	public String dateToString(java.sql.Date inputDate)
+	{
+		LocalDate ISOshiftDate=inputDate.toLocalDate();
+		String[] ISOdate=inputDate.toString().split("-");
+		String dateStr=ISOdate[2]+"/"+ISOdate[1]+"/"+ISOdate[0];
+		return dateStr;
+	}
+
 	//
 	@PostMapping(value="/api/saveEntry",consumes=MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public void insertActivity(HttpServletRequest request)
@@ -150,22 +174,31 @@ public class AppController {
 		model.setHandover_To(request.getParameter("handover_To"));
 		System.out.println("Model data populated ... "+model.toString());
 		shiftRespository.save(model);
-		
+
 
 	}
 
-	
+
 	@GetMapping("/getRecords")
 	public ModelAndView getRecordsByDate(HttpServletRequest request)
 	{
 		ModelAndView model= new ModelAndView("results");
-		
-		List<ShiftActivityModel> list=shiftRespository.getShiftActivitiesForDay(formatSqlDate("01/11/2018"));
-		model.addObject("list", list);
-		
+
+		List<ShiftActivityModel> entryList=shiftRespository.getShiftActivitiesForDay(formatSqlDate("01/11/2018"));
+		//ShiftActivityModel entry=shiftRespository.getShiftActivityByshiftId(new ShiftIdentifier(formatSqlDate("01/11/2018"),1));
+		List<ShiftActivityModel> entryListMod= new ArrayList<ShiftActivityModel>();
+		for (ShiftActivityModel entry :entryList)
+		{
+			entry.setShiftDate(entry.getShiftId().getShiftDate());
+			entry.setCurrentShift(entry.getShiftId().getCurrentShift());
+			entry.setDateString(dateToString(entry.getShiftDate()));
+			entryListMod.add(entry);
+		}
+		model.addObject("list", entryListMod);
+
 		return model;
 	}
-	
+
 
 	@GetMapping(value="/testForm")
 	public ModelAndView testEntry()

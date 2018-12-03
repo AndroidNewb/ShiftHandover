@@ -14,6 +14,16 @@ public class ShiftIdentifier implements Serializable{
 	@Column(name="Current_Shift")
 	private int currentShift;
 
+	public ShiftIdentifier()
+	{
+	}
+	
+	public ShiftIdentifier(Date shiftDate,int shift)
+	{
+		this.shiftDate=shiftDate;
+		this.currentShift=shift;
+	}
+	
 
 	public Date getShiftDate() {
 		return shiftDate;
